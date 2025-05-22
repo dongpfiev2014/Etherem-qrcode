@@ -226,7 +226,6 @@ const BuyPointComponent = () => {
       } else {
         await callBuyPointByNative();
       }
-      confirmTransactionToBackend(transactionId, txHash);
     } catch (error) {
       console.error(error);
       setStatus(`Lỗi: ${error.message}`);
