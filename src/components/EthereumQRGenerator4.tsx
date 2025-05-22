@@ -77,10 +77,10 @@ const switchToSepolia = async (provider) => {
 const BuyPointComponent = () => {
   const [account, setAccount] = useState(null);
   const [status, setStatus] = useState("Đang khởi tạo...");
-  const [orderId, setOrderId] = useState("chuatebongdem456");
+  const [transactionId, setTransactionId] = useState("xsdf1-sdaf12-2341dsf-123123123");
   // const [tokenAddress, setTokenAddress] = useState("");
   const [tokenAddress, setTokenAddress] = useState("0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238");
-  const [tokenAmount, setTokenAmount] = useState("0.006");
+  const [tokenAmount, setTokenAmount] = useState("0.0069");
   const [contractAddress, setContractAddress] = useState("0x67Ce370dCa7FA042d108daFCA914C03b768dea98");
   const [isLoading, setIsLoading] = useState({
     connecting: false,
@@ -94,31 +94,6 @@ const BuyPointComponent = () => {
 
   const isMobileDevice = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  };
-
-  // Hàm gọi API confirm transaction
-  const confirmTransactionToBackend = async (orderId, txHash) => {
-    setIsLoading((prev) => ({ ...prev, confirming: true }));
-    try {
-      const response = await fetch("https://your-backend-api.com/confirm-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId,
-          txHash,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Xác nhận giao dịch thất bại");
-      }
-
-      const data = await response.json();
-    } catch (error) {
-      console.error("Lỗi xác nhận giao dịch:", error);
-    }
   };
 
   const getTokenDecimals = async (tokenAddress, provider) => {
@@ -171,7 +146,7 @@ const BuyPointComponent = () => {
       const signer = await provider.getSigner();
       const contract = new Contract(contractAddress, ABI, signer);
 
-      const tx = await contract.buyPointByNative(orderId, {
+      const tx = await contract.buyPointByNative(transactionId, {
         value: parseEther(tokenAmount),
         gasLimit: 53307,
       });
@@ -201,7 +176,7 @@ const BuyPointComponent = () => {
       const decimals = await getTokenDecimals(tokenAddress, provider);
       const amountInWei = parseUnits(tokenAmount, decimals);
 
-      const tx = await contract.buyPointByToken(tokenAddress, orderId, amountInWei, {
+      const tx = await contract.buyPointByToken(tokenAddress, transactionId, amountInWei, {
         gasLimit: 100000,
       });
 
@@ -251,7 +226,7 @@ const BuyPointComponent = () => {
       } else {
         await callBuyPointByNative();
       }
-      confirmTransactionToBackend(orderId, txHash);
+      confirmTransactionToBackend(transactionId, txHash);
     } catch (error) {
       console.error(error);
       setStatus(`Lỗi: ${error.message}`);
@@ -263,12 +238,12 @@ const BuyPointComponent = () => {
   useEffect(() => {
     // Đọc tham số từ URL
     const urlParams = new URLSearchParams(window.location.search);
-    const orderIdFromUrl = urlParams.get("orderId");
+    const transactionIdFromUrl = urlParams.get("transactionId");
     const tokenAddressFromUrl = urlParams.get("tokenAddress");
     const tokenAmountFromUrl = urlParams.get("tokenAmount");
     const contractAddressFromUrl = urlParams.get("contractAddress");
 
-    if (orderIdFromUrl) setOrderId(orderIdFromUrl);
+    if (transactionIdFromUrl) setTransactionId(transactionIdFromUrl);
     if (tokenAddressFromUrl) setTokenAddress(tokenAddressFromUrl);
     if (tokenAmountFromUrl) setTokenAmount(tokenAmountFromUrl);
     if (contractAddressFromUrl) setContractAddress(contractAddressFromUrl);
@@ -278,7 +253,7 @@ const BuyPointComponent = () => {
   }, []);
 
   useEffect(() => {
-    if (!account || !orderId || !txHash) return;
+    if (!account || !transactionId || !txHash) return;
 
     let contract;
     const setupEventListeners = async () => {
@@ -290,7 +265,7 @@ const BuyPointComponent = () => {
         contract.removeAllListeners("PaymentReceived");
 
         // Listen for PaymentReceived events
-        contract.on("PaymentReceived", (from, token, eventOrderId, amount, paymentType, event) => {
+        contract.on("PaymentReceived", (from, token, eventtransactionId, amount, paymentType, event) => {
           // Skip if transaction was already processed
           if (processedTxs.current.has(event.log.transactionHash)) {
             return;
@@ -298,7 +273,7 @@ const BuyPointComponent = () => {
           console.log("PaymentReceived event:", {
             from,
             token,
-            eventOrderId,
+            eventtransactionId,
             amount: amount.toString(),
             paymentType,
             transactionHash: event.log.transactionHash,
@@ -320,7 +295,7 @@ const BuyPointComponent = () => {
         window.ethereum.removeAllListeners();
       }
     };
-  }, [account, orderId, txHash]);
+  }, [account, transactionId, txHash]);
 
   return (
     <div style={{ padding: "20px", maxWidth: "500px", margin: "0 auto" }}>
@@ -330,7 +305,7 @@ const BuyPointComponent = () => {
         <p>
           <strong>Thông tin đơn hàng:</strong>
         </p>
-        <p>Order ID: {orderId}</p>
+        <p>transaction ID: {transactionId}</p>
         <p>Contract Address: {contractAddress}</p>
         {tokenAddress ? (
           <>
@@ -352,7 +327,7 @@ const BuyPointComponent = () => {
               style={{
                 width: "30px",
                 height: "30px",
-                borderRadius: "50%",
+                btransactionRadius: "50%",
                 backgroundColor: currentStep >= 1 ? "#4CAF50" : "#ddd",
                 color: "white",
                 display: "flex",
@@ -372,7 +347,7 @@ const BuyPointComponent = () => {
                 style={{
                   width: "30px",
                   height: "30px",
-                  borderRadius: "50%",
+                  btransactionRadius: "50%",
                   backgroundColor: currentStep >= 2 ? "#4CAF50" : "#ddd",
                   color: "white",
                   display: "flex",
@@ -392,7 +367,7 @@ const BuyPointComponent = () => {
               style={{
                 width: "30px",
                 height: "30px",
-                borderRadius: "50%",
+                btransactionRadius: "50%",
                 backgroundColor: currentStep >= 3 ? "#4CAF50" : "#ddd",
                 color: "white",
                 display: "flex",
